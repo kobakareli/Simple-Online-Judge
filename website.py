@@ -1,6 +1,6 @@
 from flask import Flask
 from flask import render_template
-from flask import request, send_from_directory
+from flask import request
 app = Flask(__name__)
 
 
@@ -9,11 +9,12 @@ def main():
     return render_template('index.html')
 
 
-@app.route('/upload/', methods=['GET', 'POST'])
+@app.route('/result/', methods=['GET', 'POST'])
 def upload_file():
     if request.method == 'POST':
         f = request.files['datafile']
         f.save(f.filename)
+        # TODO run tests here and return result
         return 'file uploaded successfully'
 
 if __name__ == "__main__":
