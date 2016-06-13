@@ -7,7 +7,7 @@ def compile_code(file):
     if os.path.isfile(class_file):
         os.remove(class_file)
     if os.path.isfile(file):
-        os.system('g++ -o '+class_file+' '+file)
+        os.system('gcc -o '+class_file+' '+file)
         if os.path.isfile(class_file):
             return 200
         else:
@@ -37,4 +37,6 @@ def match(output_file, answer):
         return b
     else:
         return 404
+
+compile_code('bla.cpp')
 
