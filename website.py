@@ -17,7 +17,6 @@ OUTPUT_FILE_NAME = "aligator.out"
 def main():
     return render_template('index.html')
 
-
 def is_suffix(test, suffix):
     if suffix == "":
         if "." in test:
