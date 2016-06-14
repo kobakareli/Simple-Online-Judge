@@ -1,8 +1,8 @@
 import subprocess
 import os
 import platform
-import time
 import website
+import resource
 
 def compile_code(file):
     class_file = file[:-4]
@@ -42,8 +42,15 @@ def run_code(file, input_file, output_file, timeout, mem_limit):
             stderr = subprocess.STDOUT,
             shell = True,
             timeout=float(website.TIME_LIMIT))
+
+        memory = resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss
+        if memory > 1000 * website.MEMORY_LIMIT and r == 0:
+            r = 32512
+
     except subprocess.TimeoutExpired:
         r = 31744
+    except subprocess.CalledProcessError as e:
+        r = e.returncode
 
     if r == 0:
         return 200

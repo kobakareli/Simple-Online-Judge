@@ -3,14 +3,13 @@ from flask import render_template
 from flask import request
 import backend
 import os
-import platform
 import sys
 
 app = Flask(__name__)
 
 INPUT_SUFFIX = "in"
 OUTPUT_SUFFIX = "out"
-TIME_LIMIT = "2" #seconds
+TIME_LIMIT = "5" #seconds
 MEMORY_LIMIT = 128 #MBs
 INPUT_FILE_NAME = "aligator.in"
 OUTPUT_FILE_NAME = "aligator.out"
