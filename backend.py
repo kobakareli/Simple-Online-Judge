@@ -1,7 +1,7 @@
 import os
 import platform
 import time
-
+import website
 
 def compile_code(file):
     class_file = file[:-4]
@@ -29,17 +29,20 @@ def run_code(file, input_file, output_file, timeout, mem_limit):
     cmd = os.getcwd() + "/" + class_file
     if platform.system() == 'Windows':
         start_time = time.time()
-        r = os.system(cmd + ' < '+input_file+' > ' + output_file)
+        r = os.system(cmd + ' < '+input_file+' > ' + output_file) # TODO ulimitis msgavsi gvinda -Wl,--stack,16777216
         elapsed_time = time.time() - start_time
         if elapsed_time > int(timeout):
             r = 31744
     else:
-        r = os.system('timeout '+ timeout + 's ' + cmd + ' < '+input_file+' > ' + output_file)
+        r = os.system('ulimit -v ' + str(1000 * website.MEMORY_LIMIT) + ' && timeout '+ timeout + 's ' + cmd + ' < '+input_file+' > ' + output_file)
+
     if r == 0:
         return 200
     elif r == 31744:
         os.remove(output_file)
         return 408
+    elif r == 32512:
+        return 407
     else:
         os.remove(output_file)
         return 400

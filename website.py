@@ -6,10 +6,11 @@ import os
 import platform
 
 app = Flask(__name__)
-INPUT_SUFFIX = ""
-OUTPUT_SUFFIX = "a"
-TIME_LIMIT = "2"
-MEMORY_LIMIT = 64 #MB
+
+INPUT_SUFFIX = "in"
+OUTPUT_SUFFIX = "out"
+TIME_LIMIT = "5"
+MEMORY_LIMIT = 100 #MB
 INPUT_FILE_NAME = "aligator.in"
 OUTPUT_FILE_NAME = "aligator.out"
 
@@ -31,7 +32,9 @@ def check_test(test, filename):
 
     run_result = backend.run_code(filename, test[0], os.getcwd() + "/" + OUTPUT_FILE_NAME, TIME_LIMIT, MEMORY_LIMIT)
     if run_result == 408:
-        return "TIME OUT"
+        return "TIME LIMIT EXCEEDED"
+    if run_result == 407:
+        return "MEMORY LIMIT EXCEEDED"
     if run_result == 400:
         return "RUNTIME ERROR"
 
