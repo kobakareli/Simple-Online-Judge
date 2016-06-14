@@ -4,6 +4,7 @@ from flask import request
 import backend
 import os
 import platform
+import sys
 
 app = Flask(__name__)
 
@@ -47,6 +48,9 @@ def check_test(test, filename):
 @app.route('/result/', methods=['GET', 'POST'])
 def upload_file():
     if request.method == 'POST':
+        runpath = os.path.dirname(os.path.realpath(sys.argv[0]))
+        os.chdir(runpath)    # set current directory to the corrent value
+
         f = request.files['datafile']
         f.save(os.getcwd() + "/" + f.filename)
 
@@ -54,10 +58,7 @@ def upload_file():
         if compile_result != 200:
             return "COMPILATION_ERROR"
 
-        if platform.system() == 'Windows':
-            FULL_PATH = os.getcwd() + "/tests/"
-        else:
-            FULL_PATH = os.getcwd() + "/PycharmProjects/Simple-Online-Judge/tests/"
+        FULL_PATH = os.getcwd() + "/tests/"
 
         tests = os.listdir(FULL_PATH)
         tests.sort()
