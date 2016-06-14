@@ -1,3 +1,4 @@
+import subprocess
 import os
 import platform
 import time
@@ -27,14 +28,22 @@ def compile_code(file):
 def run_code(file, input_file, output_file, timeout, mem_limit):
     class_file = file[:-4]
     cmd = os.getcwd() + "/" + class_file
+
+    command_line = ""
     if platform.system() == 'Windows':
-        start_time = time.time()
-        r = os.system(cmd + ' < '+input_file+' > ' + output_file) # TODO ulimitis msgavsi gvinda -Wl,--stack,16777216
-        elapsed_time = time.time() - start_time
-        if elapsed_time > int(timeout):
-            r = 31744
+        command_line = cmd + ' < '+input_file+' > ' + output_file
     else:
-        r = os.system('ulimit -v ' + str(1000 * website.MEMORY_LIMIT) + ' && timeout '+ timeout + 's ' + cmd + ' < '+input_file+' > ' + output_file)
+        command_line = 'ulimit -v ' + str(1000 * website.MEMORY_LIMIT) + ' && '+ \
+                       cmd + ' < '+input_file+' > ' + output_file
+
+    try:
+        r = subprocess.check_call(
+            command_line,
+            stderr = subprocess.STDOUT,
+            shell = True,
+            timeout=float(website.TIME_LIMIT))
+    except subprocess.TimeoutExpired:
+        r = 31744
 
     if r == 0:
         return 200

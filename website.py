@@ -9,8 +9,8 @@ app = Flask(__name__)
 
 INPUT_SUFFIX = "in"
 OUTPUT_SUFFIX = "out"
-TIME_LIMIT = "5"
-MEMORY_LIMIT = 100 #MB
+TIME_LIMIT = "2" #seconds
+MEMORY_LIMIT = 128 #MBs
 INPUT_FILE_NAME = "aligator.in"
 OUTPUT_FILE_NAME = "aligator.out"
 
