@@ -3,12 +3,12 @@ from flask import render_template
 from flask import request
 import backend
 import os
-import subprocess
+import platform
 
 app = Flask(__name__)
 INPUT_SUFFIX = ""
 OUTPUT_SUFFIX = "a"
-TIME_LIMIT = "2s"
+TIME_LIMIT = "2"
 MEMORY_LIMIT = 64 #MB
 INPUT_FILE_NAME = "aligator.in"
 OUTPUT_FILE_NAME = "aligator.out"
@@ -49,10 +49,13 @@ def upload_file():
         f.save(os.getcwd() + "/" + f.filename)
 
         compile_result = backend.compile_code(f.filename)
-        if (compile_result == 400):
+        if compile_result != 200:
             return "COMPILATION_ERROR"
 
-        FULL_PATH = os.getcwd() + "/PycharmProjects/Simple-Online-Judge/tests/"
+        if platform.system() == 'Windows':
+            FULL_PATH = os.getcwd() + "/tests/"
+        else:
+            FULL_PATH = os.getcwd() + "/PycharmProjects/Simple-Online-Judge/tests/"
 
         tests = os.listdir(FULL_PATH)
         tests.sort()
