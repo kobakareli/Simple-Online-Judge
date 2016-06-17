@@ -2,7 +2,9 @@ import subprocess
 import os
 import platform
 import website
-import resource
+import psutil
+import signal
+
 
 def compile_code(file):
     class_file = file[:-4]
@@ -25,11 +27,10 @@ def compile_code(file):
         return 404
 
 
-def run_code(file, input_file, output_file, timeout, mem_limit):
+def run_code(file, input_file, output_file):
     class_file = file[:-4]
     cmd = os.getcwd() + "/" + class_file
 
-    command_line = ""
     if platform.system() == 'Windows':
         command_line = cmd + ' < '+input_file+' > ' + output_file
     else:
@@ -39,28 +40,47 @@ def run_code(file, input_file, output_file, timeout, mem_limit):
     try:
         r = subprocess.check_call(
             command_line,
-            stderr = subprocess.STDOUT,
-            shell = True,
+            stderr=subprocess.STDOUT,
+            shell=True,
             timeout=float(website.TIME_LIMIT))
-
-        memory = resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss
-        if memory > 1000 * website.MEMORY_LIMIT and r == 0:
-            r = 32512
+        try:
+            parent = psutil.Process(os.getpid())
+        except psutil.NoSuchProcess:
+            return 400
+        children = parent.children(recursive=True)
+        if platform.system() == 'Windows':
+            for process in children:
+                memory = process.memory_info().rss
+                if memory > int(website.MEMORY_LIMIT)*1000000:
+                    r = 32512
+                break
 
     except subprocess.TimeoutExpired:
         r = 31744
+        parent = psutil.Process(os.getpid())
+        children = parent.children(recursive=True)
+        try:
+            children[0].kill()
+        except:
+            pass
     except subprocess.CalledProcessError as e:
         r = e.returncode
 
     if r == 0:
         return 200
     elif r == 31744:
-        os.remove(output_file)
+        try:
+            children[0].kill()
+        except:
+            pass
         return 408
     elif r == 32512:
+        try:
+            children[0].kill()
+        except:
+            pass
         return 407
     else:
-        os.remove(output_file)
         return 400
 
 

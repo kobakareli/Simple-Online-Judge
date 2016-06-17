@@ -4,19 +4,22 @@ from flask import request
 import backend
 import os
 import sys
+import platform
 
 app = Flask(__name__)
 
-INPUT_SUFFIX = "in"
-OUTPUT_SUFFIX = "out"
-TIME_LIMIT = "5" #seconds
-MEMORY_LIMIT = 128 #MBs
+INPUT_SUFFIX = ""
+OUTPUT_SUFFIX = ".a"
+TIME_LIMIT = "2" #seconds
+MEMORY_LIMIT = 256 #MBs
 INPUT_FILE_NAME = "aligator.in"
 OUTPUT_FILE_NAME = "aligator.out"
+
 
 @app.route("/")
 def main():
     return render_template('index.html')
+
 
 def is_suffix(test, suffix):
     if suffix == "":
@@ -30,7 +33,7 @@ def is_suffix(test, suffix):
 def check_test(test, filename):
     open(OUTPUT_FILE_NAME, "w")
 
-    run_result = backend.run_code(filename, test[0], os.getcwd() + "/" + OUTPUT_FILE_NAME, TIME_LIMIT, MEMORY_LIMIT)
+    run_result = backend.run_code(filename, test[0], os.getcwd() + "/" + OUTPUT_FILE_NAME)
     if run_result == 408:
         return "TIME LIMIT EXCEEDED"
     if run_result == 407:
@@ -39,10 +42,11 @@ def check_test(test, filename):
         return "RUNTIME ERROR"
 
     match_result = backend.match(os.getcwd() + "/" + OUTPUT_FILE_NAME, test[1])
-    if match_result == False:
+    if match_result is False:
         return "WRONG ANSWER"
 
     return "OK"
+
 
 @app.route('/result/', methods=['GET', 'POST'])
 def upload_file():
@@ -55,6 +59,8 @@ def upload_file():
 
         compile_result = backend.compile_code(f.filename)
         if compile_result != 200:
+            os.remove(f.filename)
+            os.remove(OUTPUT_FILE_NAME)
             return "COMPILATION_ERROR"
 
         FULL_PATH = os.getcwd() + "/tests/"
@@ -79,18 +85,32 @@ def upload_file():
                 test_pairs[i][0] = test_pairs[i][1]
                 test_pairs[i][1] = tmp
 
-            test_pairs[i]=[FULL_PATH + test_pairs[i][0] , FULL_PATH + test_pairs[i][1]]
-
-        print(test_pairs)
+            test_pairs[i] = [FULL_PATH + test_pairs[i][0], FULL_PATH + test_pairs[i][1]]
 
         id = 0
         for test in test_pairs:
             id += 1
-            print(id)
             test_result = check_test(test, f.filename)
             if test_result != "OK":
+                try:
+                    os.remove(f.filename)
+                    os.remove(OUTPUT_FILE_NAME)
+                    if platform.system() == 'Windows':
+                        os.remove(f.filename[:-4] + '.exe')
+                    else:
+                        os.remove(f.filename[:-4])
+                except:
+                    pass
                 return test_result
-
+        try:
+            os.remove(f.filename)
+            os.remove(OUTPUT_FILE_NAME)
+            if platform.system() == 'Windows':
+                os.remove(f.filename[:-4] + '.exe')
+            else:
+                os.remove(f.filename[:-4])
+        except:
+            pass
         return "OK"
 
 if __name__ == "__main__":
