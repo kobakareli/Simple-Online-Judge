@@ -12,7 +12,7 @@ def compile_code(file):
         os.remove(class_file)
     if os.path.isfile(file):
         if platform.system() == 'Windows':
-            os.system('g++ -g ' + file + ' -o ' + class_file + ' -lm')
+            os.system('g++ -std=c++11 ' + file + ' -o ' + class_file + ' -lm')
             if os.path.isfile(class_file + '.exe'):
                 return 200
             else:
