@@ -31,7 +31,6 @@ def is_suffix(test, suffix):
 
 
 def check_test(test, filename):
-    open(OUTPUT_FILE_NAME, "w")
 
     run_result = backend.run_code(filename, test[0], os.getcwd() + "/" + OUTPUT_FILE_NAME)
     if run_result == 408:
@@ -44,7 +43,6 @@ def check_test(test, filename):
     match_result = backend.match(os.getcwd() + "/" + OUTPUT_FILE_NAME, test[1])
     if match_result is False:
         return "WRONG ANSWER"
-
     return "OK"
 
 
@@ -60,7 +58,10 @@ def upload_file():
         compile_result = backend.compile_code(f.filename)
         if compile_result != 200:
             os.remove(f.filename)
-            os.remove(OUTPUT_FILE_NAME)
+            try:
+                os.remove(OUTPUT_FILE_NAME)
+            except:
+                pass
             return "COMPILATION_ERROR"
 
         FULL_PATH = os.getcwd() + "/tests/"
@@ -94,21 +95,21 @@ def upload_file():
             if test_result != "OK":
                 try:
                     os.remove(f.filename)
-                    os.remove(OUTPUT_FILE_NAME)
                     if platform.system() == 'Windows':
                         os.remove(f.filename[:-4] + '.exe')
                     else:
                         os.remove(f.filename[:-4])
+                    os.remove(OUTPUT_FILE_NAME)
                 except:
                     pass
                 return test_result
         try:
             os.remove(f.filename)
-            os.remove(OUTPUT_FILE_NAME)
             if platform.system() == 'Windows':
                 os.remove(f.filename[:-4] + '.exe')
             else:
                 os.remove(f.filename[:-4])
+            os.remove(OUTPUT_FILE_NAME)
         except:
             pass
         return "OK"

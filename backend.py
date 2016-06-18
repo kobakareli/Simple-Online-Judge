@@ -3,7 +3,6 @@ import os
 import platform
 import website
 import psutil
-import signal
 
 
 def compile_code(file):
@@ -12,7 +11,7 @@ def compile_code(file):
         os.remove(class_file)
     if os.path.isfile(file):
         if platform.system() == 'Windows':
-            os.system('g++ -std=c++11 ' + file + ' -o ' + class_file + ' -lm')
+            os.system('g++ -std=c++11 ' + file + ' -o ' + class_file)
             if os.path.isfile(class_file + '.exe'):
                 return 200
             else:
@@ -43,10 +42,7 @@ def run_code(file, input_file, output_file):
             stderr=subprocess.STDOUT,
             shell=True,
             timeout=float(website.TIME_LIMIT))
-        try:
-            parent = psutil.Process(os.getpid())
-        except psutil.NoSuchProcess:
-            return 400
+        parent = psutil.Process(os.getpid())
         children = parent.children(recursive=True)
         if platform.system() == 'Windows':
             for process in children:
@@ -56,31 +52,25 @@ def run_code(file, input_file, output_file):
                 break
 
     except subprocess.TimeoutExpired:
+        # after time limit exception the subprocess would not finish on Windows and that caused problems, so
+        # it had to be killed manually. Python methods couldn't kill it, so another process had to be used.
+        if platform.system() == 'Windows':
+            r = subprocess.call('Taskkill /IM {} /F'.format(class_file + '.exe'), stderr=subprocess.STDOUT, shell=True)
         r = 31744
-        parent = psutil.Process(os.getpid())
-        children = parent.children(recursive=True)
-        try:
-            children[0].kill()
-        except:
-            pass
     except subprocess.CalledProcessError as e:
         r = e.returncode
 
     if r == 0:
         return 200
     elif r == 31744:
-        try:
-            children[0].kill()
-        except:
-            pass
         return 408
     elif r == 32512:
-        try:
-            children[0].kill()
-        except:
-            pass
+        if platform.system() == 'Windows':
+            r = subprocess.call('Taskkill /IM {} /F'.format(class_file + '.exe'), stderr=subprocess.STDOUT, shell=True)
         return 407
     else:
+        if platform.system() == 'Windows':
+            r = subprocess.call('Taskkill /IM {} /F'.format(class_file + '.exe'), stderr=subprocess.STDOUT, shell=True)
         return 400
 
 
