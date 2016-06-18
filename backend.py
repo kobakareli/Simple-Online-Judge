@@ -64,7 +64,7 @@ def run_code(file, input_file, output_file):
         return 200
     elif r == 31744:
         return 408
-    elif r == 32512:
+    elif r == 139:
         if platform.system() == 'Windows':
             r = subprocess.call('Taskkill /IM {} /F'.format(class_file + '.exe'), stderr=subprocess.STDOUT, shell=True)
         return 407
