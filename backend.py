@@ -33,7 +33,8 @@ def run_code(file, input_file, output_file):
     if platform.system() == 'Windows':
         command_line = cmd + ' < '+input_file+' > ' + output_file
     else:
-        command_line = 'ulimit -v ' + str(1000 * website.MEMORY_LIMIT) + ' && '+ \
+        command_line = 'ulimit -s ' + str(1000 * website.MEMORY_LIMIT) + ' && ' \
+        + 'ulimit -v ' + str(1000 * website.MEMORY_LIMIT) + ' && '+ \
                        cmd + ' < '+input_file+' > ' + output_file
 
     try:
