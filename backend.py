@@ -11,7 +11,9 @@ def compile_code(file):
         os.remove(class_file)
     if os.path.isfile(file):
         if platform.system() == 'Windows':
-            os.system('g++ -std=c++11 ' + file + ' -o ' + class_file)
+            os.system('g++.exe -static -DONLINE_JUDGE -lm -s -x c++ -Wl,'
+                      '--stack=' + str(website.MEMORY_LIMIT*1024*1024) +
+                      ' -O2 -std=c++11 -D__USE_MINGW_ANSI_STDIO=0 -o ' + class_file + '.exe ' + file)
             if os.path.isfile(class_file + '.exe'):
                 return 200
             else:
